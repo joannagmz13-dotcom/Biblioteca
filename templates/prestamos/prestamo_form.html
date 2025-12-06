@@ -1,0 +1,339 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+
+<!-- Estilos personalizados -->
+<link rel="stylesheet" href="{% static 'css/base/coloresCustom.css' %}">
+
+<div>
+    <span class="fw-bold text-dark">Gestión de Préstamos</span>
+    <span class="mx-2 text-dark">|</span>
+    <span class="text-secondary">Registrar nuevo préstamo</span>
+</div>
+
+<div class="custom-card mt-4">
+    <form id="prestamoForm" method="POST">
+        {% csrf_token %}
+        
+        <!-- ======================
+             SELECCIONAR ALUMNO
+        ======================= -->
+        <div class="mb-4">
+            <div class="d-flex align-items-center mb-3">
+                <div class="icon-circle bg-primary me-2">
+                    <i class="bi bi-person-fill text-white"></i>
+                </div>
+                <h5 class="mb-0 text-dark">Alumno</h5>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-8">
+                    <label class="form-label fw-semibold text-dark">Seleccionar alumno</label>
+                    <select class="form-select custom-select" name="alumno" required>
+                        <option value="">-- Seleccione un alumno --</option>
+                        {% for a in alumnos %}
+                            <option value="{{ a.id_alumno }}">
+                                {{ a.nombre }} {{ a.apellidos }} — {{ a.matricula }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                    <div class="form-text">
+                        <i class="bi bi-info-circle me-1"></i>Seleccione el alumno que solicita el préstamo
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <hr class="my-4">
+
+        <!-- ======================
+             SELECCIONAR LIBRO
+        ======================= -->
+        <div class="mb-4">
+            <div class="d-flex align-items-center mb-3">
+                <div class="icon-circle bg-success me-2">
+                    <i class="bi bi-book-fill text-white"></i>
+                </div>
+                <h5 class="mb-0 text-dark">Datos del libro</h5>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label fw-semibold text-dark">Libro</label>
+                    <select id="libroSelect" class="form-select custom-select" required>
+                        <option value="">-- Seleccione un libro --</option>
+                        {% for l in libros %}
+                            <option value="{{ l.id_libro }}">
+                                {{ l.titulo }} (Disponibles: {{ l.cantidad_disponible }})
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="col-md-6 mb-3">
+                    <label class="form-label fw-semibold text-dark">Ejemplar disponible</label>
+                    <select name="ejemplar" id="ejemplarSelect" class="form-select custom-select" required disabled>
+                        <option value="">Seleccione un libro primero</option>
+                    </select>
+                    <div class="form-text">
+                        <i class="bi bi-info-circle me-1"></i>Los ejemplares se cargan automáticamente al seleccionar el libro
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <hr class="my-4">
+
+        <!-- ======================
+             FECHAS DEL PRÉSTAMO
+        ======================= -->
+        <div class="mb-4">
+            <div class="d-flex align-items-center mb-3">
+                <div class="icon-circle bg-info me-2">
+                    <i class="bi bi-calendar-fill text-white"></i>
+                </div>
+                <h5 class="mb-0 text-dark">Fechas del préstamo</h5>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-3 mb-3">
+                    <label class="form-label fw-semibold text-dark">Fecha de préstamo</label>
+                    <input type="date" name="fecha_prestamo" id="fechaPrestamo" class="form-control custom-input" required>
+                    <div class="form-text">
+                        <i class="bi bi-calendar-event me-1"></i>Fecha actual
+                    </div>
+                </div>
+                
+                <div class="col-md-3 mb-3">
+                    <label class="form-label fw-semibold text-dark">Fecha de vencimiento</label>
+                    <input type="date" name="fecha_vencimiento" id="fechaVencimiento" class="form-control custom-input" required>
+                    <div class="form-text">
+                        <i class="bi bi-calendar-x me-1"></i>7 días después del préstamo
+                    </div>
+                </div>
+                
+                <div class="col-md-6 d-flex align-items-end mb-3">
+                    <div class="alert alert-light border w-100">
+                        <div class="d-flex align-items-center">
+                            <i class="bi bi-clock-history fs-4 me-2 text-primary"></i>
+                            <div>
+                                <small class="text-dark fw-semibold">Período del préstamo:</small>
+                                <div id="periodoPrestamo" class="text-muted">Seleccione las fechas</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <input type="hidden" name="estado" value="activo">
+        </div>
+
+        <!-- BOTONES DE ACCIÓN -->
+        <div class="d-flex justify-content-between mt-5 pt-4 border-top">
+            <a href="{% url 'prestamo_list' %}" class="btn btn-custom-secondary">
+                <i class="bi bi-arrow-left me-2"></i>Volver al listado
+            </a>
+            
+            <div class="d-flex gap-2">
+                <button type="reset" class="btn btn-custom-warning">
+                    <i class="bi bi-eraser me-2"></i>Limpiar
+                </button>
+                
+                <button type="button" onclick="confirmarPrestamo()" class="btn btn-custom-success">
+                    <i class="bi bi-check-circle me-2"></i>Registrar préstamo
+                </button>
+            </div>
+        </div>
+
+    </form>
+</div>
+
+<!-- SweetAlert -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+    // ============================
+    // FECHA DE HOY + 7 DÍAS
+    // ============================
+    function setDefaultDates() {
+        let hoy = new Date();
+        let venc = new Date();
+        venc.setDate(hoy.getDate() + 7);
+
+        document.getElementById("fechaPrestamo").value = hoy.toISOString().split("T")[0];
+        document.getElementById("fechaVencimiento").value = venc.toISOString().split("T")[0];
+        actualizarPeriodo();
+    }
+    
+    // ============================
+    // ACTUALIZAR PERÍODO MOSTRADO
+    // ============================
+    function actualizarPeriodo() {
+        const fechaInicio = document.getElementById('fechaPrestamo').value;
+        const fechaFin = document.getElementById('fechaVencimiento').value;
+        
+        if (fechaInicio && fechaFin) {
+            const inicio = new Date(fechaInicio);
+            const fin = new Date(fechaFin);
+            const diffTime = Math.abs(fin - inicio);
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            
+            document.getElementById('periodoPrestamo').innerHTML = 
+                `${fechaInicio} <i class="bi bi-arrow-right mx-2"></i> ${fechaFin} <span class="badge bg-primary ms-2">${diffDays} días</span>`;
+        }
+    }
+    
+    // Inicializar fechas
+    setDefaultDates();
+    
+    // Escuchar cambios en fechas
+    document.getElementById('fechaPrestamo').addEventListener('change', function() {
+        if (this.value) {
+            const fechaInicio = new Date(this.value);
+            const fechaFin = new Date(fechaInicio);
+            fechaFin.setDate(fechaFin.getDate() + 7);
+            document.getElementById('fechaVencimiento').value = fechaFin.toISOString().split("T")[0];
+        }
+        actualizarPeriodo();
+    });
+    
+    document.getElementById('fechaVencimiento').addEventListener('change', actualizarPeriodo);
+
+    // ============================
+    // CARGAR EJEMPLARES DISPONIBLES
+    // ============================
+    document.getElementById("libroSelect").addEventListener("change", function () {
+        let libroId = this.value;
+        let ejemplarSelect = document.getElementById("ejemplarSelect");
+
+        if (!libroId) {
+            ejemplarSelect.innerHTML = '<option value="">Seleccione un libro primero</option>';
+            ejemplarSelect.disabled = true;
+            return;
+        }
+
+        // Mostrar carga
+        ejemplarSelect.innerHTML = '<option value="">Cargando ejemplares...</option>';
+        ejemplarSelect.disabled = false;
+
+        fetch(`/biblioteca/ejemplares-disponibles/${libroId}/`)
+            .then(res => res.json())
+            .then(data => {
+                ejemplarSelect.innerHTML = "";
+
+                if (data.length === 0) {
+                    ejemplarSelect.innerHTML = `<option value="">No hay ejemplares disponibles</option>`;
+                    return;
+                }
+
+                data.forEach(ej => {
+                    ejemplarSelect.innerHTML += `
+                        <option value="${ej.id}">Ejemplar #${ej.num} (${ej.estado})</option>
+                    `;
+                });
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                ejemplarSelect.innerHTML = '<option value="">Error al cargar ejemplares</option>';
+            });
+    });
+
+    // ============================
+    // CONFIRMACIÓN DE PRÉSTAMO
+    // ============================
+    function confirmarPrestamo() {
+        const form = document.getElementById('prestamoForm');
+        
+        // Validación básica
+        if (!form.checkValidity()) {
+            form.reportValidity();
+            return;
+        }
+        
+        const alumnoSelect = document.querySelector('select[name="alumno"]');
+        const libroSelect = document.getElementById('libroSelect');
+        const alumnoText = alumnoSelect.options[alumnoSelect.selectedIndex].text;
+        const libroText = libroSelect.options[libroSelect.selectedIndex].text;
+        
+        Swal.fire({
+            title: "¿Registrar préstamo?",
+            html: `
+                <div class="text-start">
+                    <p class="mb-2"><strong>Alumno:</strong> ${alumnoText}</p>
+                    <p class="mb-2"><strong>Libro:</strong> ${libroText}</p>
+                    <p class="mb-0"><strong>Período:</strong> ${document.getElementById('periodoPrestamo').innerText}</p>
+                </div>
+            `,
+            icon: "question",
+            showCancelButton: true,
+            confirmButtonText: "Sí, registrar",
+            cancelButtonText: "Cancelar",
+            confirmButtonColor: "var(--success-color)",
+            cancelButtonColor: "var(--secondary-color)",
+            customClass: {
+                confirmButton: 'btn-custom-success',
+                cancelButton: 'btn-custom-secondary'
+            }
+        }).then((res) => {
+            if (res.isConfirmed) {
+                // Agregar spinner al botón
+                const submitBtn = document.querySelector('button[onclick="confirmarPrestamo()"]');
+                const originalText = submitBtn.innerHTML;
+                submitBtn.innerHTML = '<i class="bi bi-hourglass-split me-2"></i>Procesando...';
+                submitBtn.disabled = true;
+                
+                form.submit();
+            }
+        });
+    }
+</script>
+
+<!-- Estilos adicionales -->
+<style>
+    .icon-circle {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .custom-select, .custom-input {
+        border: 1px solid var(--border-color);
+        transition: all 0.3s ease;
+    }
+    
+    .custom-select:focus, .custom-input:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 0.2rem rgba(var(--primary-color), 0.25);
+    }
+    
+    .custom-select:disabled {
+        background-color: #f8f9fa;
+        cursor: not-allowed;
+    }
+    
+    .btn-custom-success, .btn-custom-secondary, .btn-custom-warning {
+        padding: 8px 20px;
+        border-radius: 6px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+    
+    .custom-card {
+        background: white;
+        border-radius: 10px;
+        padding: 2rem;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        border: 1px solid var(--border-color);
+    }
+    
+    .form-text {
+        font-size: 0.85rem;
+        color: #6c757d;
+        margin-top: 5px;
+    }
+</style>
+
+{% endblock %}

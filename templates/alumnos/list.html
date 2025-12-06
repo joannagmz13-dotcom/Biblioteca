@@ -1,0 +1,147 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+
+<!-- Estilos personalizados -->
+<link rel="stylesheet" href="{% static 'css/base/coloresCustom.css' %}">
+<link rel="stylesheet" href="https://cdn.datatables.net/2.2.2/css/dataTables.dataTables.min.css">
+
+<div>
+    <span class="fw-bold text-dark">Gestión de Alumnos</span>
+    <span class="mx-2 text-dark">|</span>
+    <span class="text-secondary">Listado de alumnos registrados</span>
+</div>
+
+<div class="text-end">
+    <a href="{% url 'alumno_create' %}" class="btn btn-custom-success btn-add mb-4">
+        <i class="bi bi-plus-circle"></i> Nuevo Alumno
+    </a>
+</div>
+
+<div class="custom-card">
+    <div class="table-responsive">
+        <table id="alumnosTable" class="table table-striped table-bordered">
+            <thead>
+                <tr>
+                    <th>Matrícula</th>
+                    <th>Nombre</th>
+                    <th>Apellidos</th>
+                    <th>Semestre</th>
+                    <th>Grupo</th>
+                    <th>Estado</th>
+                    <th style="text-align:center;">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for alumno in alumnos %}
+                <tr>
+                    <td>{{ alumno.matricula }}</td>
+                    <td>{{ alumno.nombre }}</td>
+                    <td>{{ alumno.apellidos }}</td>
+                    <td>{{ alumno.semestre }}</td>
+                    <td>{{ alumno.grupo }}</td>
+                    <td>{{ alumno.estado }}</td>
+
+                    <td class="text-center">
+                        <div class="d-flex justify-content-center gap-2">
+
+                            <a href="{% url 'alumno_update' alumno.id_alumno %}"
+                               class="btn btn-custom-info btn-sm"
+                               title="Editar">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+
+                            <!-- Botón de eliminar: ahora incluye la URL real en data-url -->
+                            <button type="button"
+                                    class="btn btn-custom-danger btn-sm btn-eliminar-alumno"
+                                    title="Eliminar"
+                                    data-url="{% url 'alumno_delete' alumno.id_alumno %}"
+                                    data-nombre="{{ alumno.nombre }} {{ alumno.apellidos }}">
+                                <i class="bi bi-trash"></i>
+                            </button>
+
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Scripts -->
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.datatables.net/2.2.2/js/dataTables.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+// Inicializar DataTable
+$(document).ready(function () {
+    $('#alumnosTable').DataTable({
+        language: {
+            "emptyTable": "No hay alumnos disponibles",
+            "info": "Mostrando _START_ a _END_ de _TOTAL_ alumnos",
+            "infoEmpty": "Mostrando 0 a 0 de 0 alumnos",
+            "infoFiltered": "(filtrado de _MAX_ alumnos totales)",
+            "lengthMenu": "Mostrar _MENU_ alumnos",
+            "loadingRecords": "Cargando...",
+            "processing": "Procesando...",
+            "search": "Buscar:",
+            "zeroRecords": "No se encontraron alumnos",
+            "paginate": {
+                "first": '<i class="bi bi-rewind-fill"></i>',
+                "last": '<i class="bi bi-fast-forward-fill"></i>',
+                "next": '<i class="bi bi-caret-right-fill"></i>',
+                "previous": '<i class="bi bi-caret-left-fill"></i>'
+            }
+        },
+        responsive: true
+    });
+
+    // Delegación de eventos: manejador para botones de eliminar
+    $(document).on('click', '.btn-eliminar-alumno', function () {
+        const url = $(this).data('url');
+        const nombre = $(this).data('nombre') || 'este alumno';
+
+        Swal.fire({
+            title: "¿Eliminar alumno?",
+            text: "Se eliminará a " + nombre,
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: 'var(--danger-color)',
+            cancelButtonColor: 'var(--secondary-color)',
+            confirmButtonText: "Sí, eliminar",
+            cancelButtonText: "Cancelar"
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Redirige a la URL proporcionada por Django
+                window.location.href = url;
+            }
+        });
+    });
+});
+</script>
+
+<!-- Notificaciones -->
+<script src="https://cdn.jsdelivr.net/npm/notyf@3.10.0/notyf.min.js"></script>
+<link href="https://cdn.jsdelivr.net/npm/notyf@3.10.0/notyf.min.css" rel="stylesheet">
+
+{% if messages %}
+<script>
+    const notyf = new Notyf({
+        duration: 3000,
+        position: {x: 'right', y: 'bottom'},
+        dismissible: true
+    });
+
+    {% for message in messages %}
+        {% if message.tags == 'success' %}
+            notyf.success("{{ message }}");
+        {% elif message.tags == 'error' %}
+            notyf.error("{{ message }}");
+        {% endif %}
+    {% endfor %}
+</script>
+{% endif %}
+
+{% endblock %}

@@ -1,0 +1,353 @@
+{% extends 'basealumno.html' %}
+{% load static %}
+
+{% block content %}
+
+<head>
+    <title>{{ libro.titulo }}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+ <link rel="stylesheet" href="{% static 'css/base/coloresCustom.css' %}">
+</head>
+
+<!-- Estilos con colores personalizados -->
+<style>
+  
+    
+    .bg-primary-custom {
+        background-color: var(--primary-color) !important;
+        color: var(--text-light) !important;
+    }
+    
+    .btn-primary-custom {
+        background-color: var(--primary-color);
+        border-color: var(--primary-color);
+        color: var(--text-light);
+    }
+    
+    .btn-primary-custom:hover {
+        background-color: var(--primary-hover);
+        border-color: var(--primary-hover);
+        color: var(--text-light);
+    }
+    
+    .btn-outline-primary-custom {
+        color: var(--primary-color);
+        border-color: var(--primary-color);
+    }
+    
+    .btn-outline-primary-custom:hover {
+        background-color: var(--primary-color);
+        border-color: var(--primary-color);
+        color: var(--text-light);
+    }
+    
+    .text-primary-custom {
+        color: var(--primary-color) !important;
+    }
+    
+    .border-primary-custom {
+        border-color: var(--primary-color) !important;
+    }
+    
+    .bg-info-custom {
+        background-color: var(--info-color) !important;
+        color: var(--text-dark) !important;
+    }
+    
+    .bg-success-custom {
+        background-color: var(--success-color) !important;
+        color: var(--text-dark) !important;
+    }
+    
+    .bg-warning-custom {
+        background-color: var(--warning-color) !important;
+        color: var(--text-dark) !important;
+    }
+    
+    .bg-danger-custom {
+        background-color: var(--danger-color) !important;
+        color: var(--text-light) !important;
+    }
+    
+    .bg-light-custom {
+        background-color: var(--light-color) !important;
+        color: var(--text-dark) !important;
+    }
+    
+    .bg-secondary-custom {
+        background-color: var(--secondary-color) !important;
+        color: var(--text-light) !important;
+    }
+    
+    .bg-dark-custom {
+        background-color: var(--dark-color) !important;
+        color: var(--text-light) !important;
+    }
+    
+    .text-secondary-custom {
+        color: var(--secondary-color) !important;
+    }
+    
+    .badge-info-custom {
+        background-color: var(--primary-color);
+        color: var(--light-color);
+    }
+    
+    .badge-secondary-custom {
+        background-color: var(--secondary-color);
+        color: var(--text-light);
+    }
+    
+    .border-light-custom {
+        border-color: var(--light-color) !important;
+    }
+    
+    .hover-shadow {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    .hover-shadow:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(78, 115, 223, 0.15) !important;
+    }
+    
+    .card {
+        border-radius: 16px;
+        border: 1px solid rgba(133, 135, 150, 0.1);
+    }
+    
+    .badge {
+        border-radius: 10px;
+        font-weight: 500;
+    }
+    
+    .img-detail {
+        height: 350px;
+        object-fit: cover;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+    
+    .no-image-placeholder {
+        background: linear-gradient(135deg, var(--light-color) 0%, #e9ecef 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .section-title {
+        position: relative;
+        padding-bottom: 10px;
+    }
+    
+    .section-title::after {
+        content: '';
+        position: absolute;
+        left: 0;
+        bottom: 0;
+        width: 60px;
+        height: 3px;
+        background-color: var(--primary-color);
+        border-radius: 2px;
+    }
+</style>
+
+<div class="container-fluid py-4 ">
+    <!-- Botón de regreso mejorado -->
+    <div class="mb-4">
+        <a href="{% url 'catalogo_libros' %}" class="btn btn-outline-primary-custom rounded-pill px-4">
+            <i class="bi bi-arrow-left me-2"></i>Volver al catálogo
+        </a>
+    </div>
+
+    <!-- Tarjeta principal del libro -->
+    <div class="card border-0 shadow-lg overflow-hidden bg-light-custom">
+        <div class="row g-0">
+            <!-- Columna de la imagen -->
+            <div class="col-md-4 col-lg-3">
+                <div class="h-100 d-flex flex-column p-4 p-md-5 bg-light-custom">
+                    {% if libro.imagen %}
+                        <img src="{{ libro.imagen.url }}" class="img-fluid img-detail w-100 mb-4" alt="{{ libro.titulo }}">
+                    {% else %}
+                        <div class="img-fluid img-detail w-100 mb-4 no-image-placeholder rounded-3">
+                            <div class="text-center p-4">
+                                <i class="bi bi-book display-1 text-secondary-custom"></i>
+                                <p class="mt-2 text-secondary-custom">Imagen no disponible</p>
+                            </div>
+                        </div>
+                    {% endif %}
+                    
+                    <!-- Información destacada -->
+                    <div class="mt-auto">
+                        <div class="d-grid gap-2">
+                            <div class="badge badge-info-custom fs-6 fw-normal p-2 mb-2">
+                                <i class="bi bi-book me-1"></i> {{ libro.categoria.nombre_categoria }}
+                            </div>
+                            {% if libro.anio %}
+                            <div class="badge badge-secondary-custom fs-6 fw-normal p-2">
+                                <i class="bi bi-calendar3 me-1"></i> {{ libro.anio }}
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Acciones rápidas -->
+                        <div class="mt-4 pt-3 border-top border-light-custom">
+                            <div class="d-flex justify-content-center gap-3">
+                                <button type="button" class="btn btn-sm btn-outline-primary-custom rounded-pill px-3">
+                                    <i class="bi bi-bookmark me-1"></i> Guardar
+                                </button>
+                                <button type="button" class="btn btn-sm btn-primary-custom rounded-pill px-3">
+                                    <i class="bi bi-eye me-1"></i> Leer
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Columna de detalles -->
+            <div class="col-md-8 col-lg-9">
+                <div class="card-body p-4 p-md-5">
+                    <!-- Título -->
+                    <h1 class="card-title fw-bold text-primary-custom mb-3">{{ libro.titulo }}</h1>
+                    
+                    <!-- Autores -->
+                    <div class="mb-4">
+                        <h5 class="text-secondary-custom mb-3 section-title">
+                            <i class="bi bi-person-badge me-2"></i>Autores
+                        </h5>
+                        <div class="d-flex flex-wrap gap-2">
+                            {% for autor in libro.autores.all %}
+                                <span class="badge bg-light-custom border border-light-custom text-dark px-3 py-2 fs-6">
+                                    <i class="bi bi-person-circle me-1 text-primary-custom"></i>{{ autor.nombre }}
+                                </span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    
+                    <hr class="my-4" style="border-color: rgba(133, 135, 150, 0.2);">
+                    
+                    <!-- Detalles del libro -->
+                    <div class="row mb-4">
+                        <div class="col-md-6 mb-3">
+                            <div class="card h-100 border-0 bg-light-custom shadow-sm">
+                                <div class="card-body">
+                                    <h6 class="card-subtitle text-secondary-custom mb-2">
+                                        <i class="bi bi-building me-1"></i> Editorial
+                                    </h6>
+                                    <p class="card-text fs-5 fw-medium text-dark">{{ libro.editorial }}</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <div class="card h-100 border-0 bg-light-custom shadow-sm">
+                                <div class="card-body">
+                                    <h6 class="card-subtitle text-secondary-custom mb-2">
+                                        <i class="bi bi-tag me-1"></i> Categoría
+                                    </h6>
+                                    <p class="card-text fs-5 fw-medium text-dark">{{ libro.categoria.nombre_categoria }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Sinopsis -->
+                    {% if libro.sinopsis %}
+                    <div class="mt-5">
+                        <h4 class="mb-3 text-primary-custom section-title">
+                            <i class="bi bi-journal-text me-2"></i>Sinopsis
+                        </h4>
+                        <div class="card border-0 bg-light-custom shadow-sm">
+                            <div class="card-body">
+                                <p class="card-text fs-5 lh-base text-dark" style="text-align: justify;">
+                                    {{ libro.sinopsis }}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Información adicional -->
+                    <div class="mt-5 pt-4 border-top" style="border-color: rgba(133, 135, 150, 0.2);">
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="d-flex flex-column flex-md-row justify-content-between align-items-center">
+                                    <div class="mb-3 mb-md-0">
+                                        <small class="text-secondary-custom">
+                                            <i class="bi bi-info-circle me-1"></i> Información del libro
+                                        </small>
+                                        <p class="mb-0 small text-dark">ID: {{ libro.id|default:"N/A" }}</p>
+                                    </div>
+                                    <div class="d-flex gap-2">
+                                        <button type="button" class="btn btn-sm btn-outline-secondary-custom rounded-pill px-3">
+                                            <i class="bi bi-share me-1"></i> Compartir
+                                        </button>
+                                        <button type="button" class="btn btn-sm btn-success-custom rounded-pill px-3" style="background-color: var(--success-color); border-color: var(--success-color); color: white;">
+                                            <i class="bi bi-download me-1"></i> Descargar
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Sección de libros relacionados -->
+    <div class="mt-5 pt-4">
+        <h4 class="text-center mb-4 text-secondary-custom section-title d-inline-block">
+            <i class="bi bi-book-half me-2"></i>Libros relacionados
+        </h4>
+        <div class="row g-4 justify-content-center">
+            <!-- Categoría relacionada -->
+            <div class="col-md-4 col-lg-3">
+                <div class="card h-100 border-0 shadow-sm hover-shadow bg-light-custom">
+                    <div class="card-body text-center p-4">
+                        <div class="mb-3">
+                            <i class="bi bi-book display-5 text-primary-custom"></i>
+                        </div>
+                        <h6 class="card-title text-dark fw-bold">Más de {{ libro.categoria.nombre_categoria }}</h6>
+                        <p class="card-text small text-secondary-custom">Explora otros libros de esta categoría</p>
+                        <a href="#" class="btn btn-sm btn-outline-primary-custom mt-2 rounded-pill">Ver todos</a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Autor relacionado -->
+            {% if libro.autores.first %}
+            <div class="col-md-4 col-lg-3">
+                <div class="card h-100 border-0 shadow-sm hover-shadow bg-light-custom">
+                    <div class="card-body text-center p-4">
+                        <div class="mb-3">
+                            <i class="bi bi-person display-5 text-primary-custom"></i>
+                        </div>
+                        <h6 class="card-title text-dark fw-bold">Más de {{ libro.autores.first.nombre }}</h6>
+                        <p class="card-text small text-secondary-custom">Descubre otros libros del autor</p>
+                        <a href="#" class="btn btn-sm btn-outline-primary-custom mt-2 rounded-pill">Explorar</a>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            
+            <!-- Editorial relacionada -->
+            <div class="col-md-4 col-lg-3">
+                <div class="card h-100 border-0 shadow-sm hover-shadow bg-light-custom">
+                    <div class="card-body text-center p-4">
+                        <div class="mb-3">
+                            <i class="bi bi-building display-5 text-primary-custom"></i>
+                        </div>
+                        <h6 class="card-title text-dark fw-bold">Más de {{ libro.editorial }}</h6>
+                        <p class="card-text small text-secondary-custom">Libros de la misma editorial</p>
+                        <a href="#" class="btn btn-sm btn-outline-primary-custom mt-2 rounded-pill">Ver colección</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

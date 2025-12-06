@@ -1,0 +1,299 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="dashboard-container">
+    <!-- Encabezado con gradiente -->
+    <div class="dashboard-header text-center mb-5">
+        <h2 class="dashboard-title fw-bold">Panel de Administración</h2>
+        <p class="dashboard-subtitle text-muted">Gestiona todos los recursos del sistema</p>
+        <div class="header-line"></div>
+    </div>
+
+    <div class="row g-4 justify-content-center">
+
+        <!-- Alumnos -->
+        <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+            <a href="{% url 'alumno_list' %}" class="text-decoration-none">
+                <div class="dashboard-card card-1">
+                    <div class="card-icon-wrapper">
+                        <i class="bi bi-people-fill card-icon"></i>
+                    </div>
+                    <h5 class="card-title mt-3">Alumnos</h5>
+                    <p class="card-description">Gestión de estudiantes</p>
+                    <div class="card-hover-text">
+                        <span>Ver lista <i class="bi bi-arrow-right"></i></span>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <!-- Categorías -->
+        <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+            <a href="{% url 'categoria_list' %}" class="text-decoration-none">
+                <div class="dashboard-card card-2">
+                    <div class="card-icon-wrapper">
+                        <i class="bi bi-tags-fill card-icon"></i>
+                    </div>
+                    <h5 class="card-title mt-3">Categorías</h5>
+                    <p class="card-description">Organización temática</p>
+                    <div class="card-hover-text">
+                        <span>Ver lista <i class="bi bi-arrow-right"></i></span>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <!-- Autores -->
+        <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+            <a href="{% url 'autor_list' %}" class="text-decoration-none">
+                <div class="dashboard-card card-3">
+                    <div class="card-icon-wrapper">
+                        <i class="bi bi-person-badge-fill card-icon"></i>
+                    </div>
+                    <h5 class="card-title mt-3">Autores</h5>
+                    <p class="card-description">Escritores y creadores</p>
+                    <div class="card-hover-text">
+                        <span>Ver lista <i class="bi bi-arrow-right"></i></span>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <!-- Libros -->
+        <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+            <a href="{% url 'libro_list' %}" class="text-decoration-none">
+                <div class="dashboard-card card-4">
+                    <div class="card-icon-wrapper">
+                        <i class="bi bi-book-half card-icon"></i>
+                    </div>
+                    <h5 class="card-title mt-3">Libros</h5>
+                    <p class="card-description">Catálogo completo</p>
+                    <div class="card-hover-text">
+                        <span>Ver lista <i class="bi bi-arrow-right"></i></span>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <!-- Préstamos -->
+        <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+            <a href="{% url 'prestamo_list' %}" class="text-decoration-none">
+                <div class="dashboard-card card-5">
+                    <div class="card-icon-wrapper">
+                        <i class="bi bi-journal-arrow-up card-icon"></i>
+                    </div>
+                    <h5 class="card-title mt-3">Préstamos</h5>
+                    <p class="card-description">Registro de préstamos</p>
+                    <div class="card-hover-text">
+                        <span>Ver lista <i class="bi bi-arrow-right"></i></span>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+    </div>
+
+    <!-- Pie decorativo -->
+    <div class="dashboard-footer text-center mt-5 pt-4">
+        <div class="footer-line"></div>
+        <p class="text-muted small mt-3">Sistema de Gestión de Biblioteca</p>
+    </div>
+</div>
+
+<style>
+    /* Estilos generales */
+    .dashboard-container {
+        padding: 2rem 1rem;
+        min-height: 80vh;
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    }
+    
+    /* Encabezado */
+    .dashboard-header {
+        position: relative;
+    }
+    
+    .dashboard-title {
+        font-size: 2.5rem;
+        background: linear-gradient(90deg, #2c3e50, #4a6491);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-bottom: 0.5rem;
+    }
+    
+    .dashboard-subtitle {
+        font-size: 1.1rem;
+        max-width: 600px;
+        margin: 0 auto;
+    }
+    
+    .header-line {
+        width: 100px;
+        height: 4px;
+        background: linear-gradient(90deg, #3498db, #2ecc71);
+        margin: 1.5rem auto;
+        border-radius: 2px;
+    }
+    
+    /* Tarjetas */
+    .dashboard-card {
+        background: white;
+        border-radius: 1.2rem;
+        padding: 2rem 1.5rem;
+        text-align: center;
+        height: 100%;
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        border: none;
+        box-shadow: 0 6px 15px rgba(0, 0, 0, 0.08);
+        position: relative;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .dashboard-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 5px;
+        background: linear-gradient(90deg, #3498db, #2ecc71);
+    }
+    
+    .card-icon-wrapper {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 1.5rem;
+        transition: all 0.3s ease;
+    }
+    
+    .card-icon {
+        font-size: 2.5rem;
+        transition: all 0.3s ease;
+    }
+    
+    .card-title {
+        font-weight: 700;
+        color: #2c3e50;
+        margin-bottom: 0.5rem;
+        transition: all 0.3s ease;
+    }
+    
+    .card-description {
+        color: #7f8c8d;
+        font-size: 0.9rem;
+        margin-bottom: 1.5rem;
+        transition: all 0.3s ease;
+    }
+    
+    .card-hover-text {
+        opacity: 0;
+        transform: translateY(10px);
+        transition: all 0.3s ease;
+        color: #3498db;
+        font-weight: 600;
+        font-size: 0.9rem;
+    }
+    
+    /* Colores específicos para cada tarjeta */
+    .card-1 .card-icon-wrapper {
+        background: rgba(52, 152, 219, 0.15);
+    }
+    .card-1 .card-icon {
+        color: #3498db;
+    }
+    
+    .card-2 .card-icon-wrapper {
+        background: rgba(46, 204, 113, 0.15);
+    }
+    .card-2 .card-icon {
+        color: #2ecc71;
+    }
+    
+    .card-3 .card-icon-wrapper {
+        background: rgba(243, 156, 18, 0.15);
+    }
+    .card-3 .card-icon {
+        color: #f39c12;
+    }
+    
+    .card-4 .card-icon-wrapper {
+        background: rgba(231, 76, 60, 0.15);
+    }
+    .card-4 .card-icon {
+        color: #e74c3c;
+    }
+    
+    .card-5 .card-icon-wrapper {
+        background: rgba(155, 89, 182, 0.15);
+    }
+    .card-5 .card-icon {
+        color: #9b59b6;
+    }
+    
+    /* Efectos hover */
+    .dashboard-card:hover {
+        transform: translateY(-12px);
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+    }
+    
+    .dashboard-card:hover .card-icon-wrapper {
+        transform: scale(1.1);
+    }
+    
+    .dashboard-card:hover .card-title {
+        color: #2c3e50;
+    }
+    
+    .dashboard-card:hover .card-hover-text {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    
+    /* Pie de página */
+    .dashboard-footer {
+        position: relative;
+    }
+    
+    .footer-line {
+        width: 200px;
+        height: 2px;
+        background: linear-gradient(90deg, transparent, #bdc3c7, transparent);
+        margin: 0 auto;
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+        .dashboard-title {
+            font-size: 2rem;
+        }
+        
+        .dashboard-card {
+            padding: 1.5rem 1rem;
+        }
+        
+        .card-icon-wrapper {
+            width: 70px;
+            height: 70px;
+        }
+        
+        .card-icon {
+            font-size: 2rem;
+        }
+    }
+    
+    @media (max-width: 576px) {
+        .dashboard-container {
+            padding: 1.5rem 0.5rem;
+        }
+    }
+</style>
+
+{% endblock %}

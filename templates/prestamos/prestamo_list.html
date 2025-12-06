@@ -1,0 +1,241 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+
+    <!-- Estilos personalizados -->
+    <link rel="stylesheet" href="{% static 'css/base/coloresCustom.css' %}">
+    <link rel="stylesheet" href="https://cdn.datatables.net/2.2.2/css/dataTables.dataTables.min.css">
+
+    <div>
+        <span class="fw-bold text-dark">Gestión de Préstamos</span>
+        <span class="mx-2 text-dark">|</span>
+        <span class="text-secondary">Listado de préstamos registrados</span>
+    </div>
+
+    <div class="text-end">
+        <a href="{% url 'prestamo_create' %}" class="btn btn-custom-success btn-add mb-4">
+            <i class="bi bi-plus-circle"></i> Nuevo Prestamo
+        </a>
+    </div>
+
+    <div class="custom-card mt-3">
+
+        <div class="table-responsive">
+            <table id="prestamosTable" class="table table-striped table-bordered align-middle">
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Matricula</th>
+                    <th>Alumno</th>
+                    <th>Libro</th>
+                    <th>Ejemplar</th>
+                    <th>Fecha préstamo</th>
+                    <th>Fecha vencimiento</th>
+                    <th>Estado</th>
+                    <th style="text-align: center;">Acciones</th>
+                </tr>
+                </thead>
+
+                <tbody>
+                {% for p in prestamos %}
+                    <tr>
+                        <td>{{ p.id_prestamo }}</td>
+                        <td>{{ p.alumno.matricula }} </td>
+                        <td>{{ p.alumno.nombre }} {{ p.alumno.apellidos }}</td>
+
+                        <td>{{ p.ejemplar.libro.titulo }}</td>
+
+                        <td>#{{ p.ejemplar.num_ejemplar }}</td>
+
+                        <td>{{ p.fecha_prestamo }}</td>
+
+                        <td>{{ p.fecha_vencimiento }}</td>
+
+                        <td>
+                            {% if p.estado == "activo" %}
+                                <span class="badge bg-primary">Activo</span>
+                            {% elif p.estado == "devuelto" %}
+                                <span class="badge bg-success">Devuelto</span>
+                            {% else %}
+                                <span class="badge bg-danger">Atrasado</span>
+                            {% endif %}
+                        </td>
+
+                        <td class="text-center">
+                            <div class="d-flex justify-content-center gap-2">
+
+                                <!-- BOTÓN MULTAS -->
+                                <a href="{% url 'prestamo_multas' p.id_prestamo %}"
+                                   class="btn btn-custom-warning btn-sm position-relative">
+                                    <i class="bi bi-exclamation-triangle"></i> 
+                                    {% if p.num_multas > 0 %}
+                                        <span class="badge bg-danger position-absolute top-0 start-100 translate-middle">
+                                    {{ p.num_multas }}
+                                </span>
+                                    {% endif %}
+                                </a>
+
+                                <!-- BOTÓN DEVOLVER -->
+                                {% if p.estado != "devuelto" %}
+                                    <button class="btn btn-custom-success btn-sm"
+                                            onclick="confirmarDevolucionFinal({{ p.id_prestamo }})">
+                                        <i class="bi bi-arrow-return-left"></i> 
+                                    </button>
+                                {% endif %}
+
+                            </div>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+
+            </table>
+        </div>
+    </div>
+
+
+    <!-- SCRIPTS -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.datatables.net/2.2.2/js/dataTables.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+
+    <script>
+        // Inicializar DataTable
+        $(document).ready(function () {
+            $('#prestamosTable').DataTable({
+                order: [[0, 'desc']],  // ← Columna 0 = ID
+                language: {
+                    "emptyTable": "No hay préstamos disponibles",
+                    "info": "Mostrando _START_ a _END_ de _TOTAL_ préstamos",
+                    "infoEmpty": "Mostrando 0 a 0 de 0 préstamos",
+                    "infoFiltered": "(filtrado de _MAX_ préstamos totales)",
+                    "lengthMenu": "Mostrar _MENU_ préstamos",
+                    "loadingRecords": "Cargando...",
+                    "processing": "Procesando...",
+                    "search": "Buscar:",
+                    "zeroRecords": "No se encontraron préstamos",
+                    "paginate": {
+                        "first": '<i class="bi bi-rewind-fill"></i>',
+                        "last": '<i class="bi bi-fast-forward-fill"></i>',
+                        "next": '<i class="bi bi-caret-right-fill"></i>',
+                        "previous": '<i class="bi bi-caret-left-fill"></i>'
+                    }
+                },
+                responsive: true
+            });
+        });
+    </script>
+
+
+    <!-- Confirmar devolución final -->
+    <script>
+        function confirmarDevolucionFinal(id) {
+            Swal.fire({
+                title: "¿Estás seguro de devolver este préstamo?",
+                text: "El ejemplar será marcado como disponible.",
+                icon: "question",
+                showCancelButton: true,
+                confirmButtonText: "Sí, continuar",
+                cancelButtonText: "Cancelar",
+                confirmButtonColor: "var(--success-color)",
+                cancelButtonColor: "var(--danger-color)"
+            }).then(result => {
+                if (result.isConfirmed) {
+                    devolverPrestamo(id);
+                }
+            });
+        }
+    </script>
+
+    <!-- DEVOLUCIÓN + MULTA AUT -->
+    <script>
+        function devolverPrestamo(id) {
+
+            fetch(`/biblioteca/prestamos/devolver/${id}/`)
+                .then(r => r.json())
+                .then(data => {
+
+                    if (data.retraso) {
+
+                        Swal.fire({
+                            title: "El préstamo está atrasado",
+                            text: "¿Deseas generar una multa?",
+                            icon: "warning",
+                            showCancelButton: true,
+                            confirmButtonText: "Sí, generar multa",
+                            cancelButtonText: "No, solo devolver"
+                        }).then(res => {
+
+                            if (res.isConfirmed) {
+                                multaAutomatica(id);
+                                return;
+                            }
+
+                            if (res.dismiss === Swal.DismissReason.cancel) {
+                                fetch(`/biblioteca/prestamos/devolver-sin-multa/${id}/`)
+                                    .then(r => r.json())
+                                    .then(() => {
+                                        Swal.fire("Listo", "Préstamo devuelto sin multa", "success")
+                                            .then(() => location.reload());
+                                    });
+                            }
+
+                        });
+
+                    } else {
+                        Swal.fire("Listo", "Préstamo devuelto", "success")
+                            .then(() => location.reload());
+                    }
+
+                });
+        }
+    </script>
+
+    <!-- MULTA AUTOMÁTICA -->
+    <script>
+        function multaAutomatica(id) {
+
+            fetch(`/biblioteca/prestamos/multa/automatica/${id}/`)
+                .then(r => r.json())
+                .then(data => {
+
+                    Swal.fire({
+                        title: "Multa por retraso",
+                        html: `
+                    <p>Días de retraso: <b>${data.dias}</b></p>
+                    <label>Monto sugerido:</label>
+                    <input id="monto" type="number" class="form-control" value="${data.monto}">
+                `,
+                        showCancelButton: true,
+                        confirmButtonText: "Guardar multa y devolver",
+                        preConfirm: () => {
+                            return {
+                                monto: document.getElementById("monto").value
+                            }
+                        }
+                    }).then(res => {
+
+                        if (!res.isConfirmed) return;
+
+                        let form = new FormData();
+                        form.append("monto", res.value.monto);
+
+                        fetch(`/biblioteca/prestamos/multa/automatica/${id}/`, {
+                            method: "POST",
+                            headers: {"X-CSRFToken": "{{ csrf_token }}"},
+                            body: form
+                        })
+                            .then(r => r.json())
+                            .then(() => {
+                                Swal.fire("Listo", "Multa registrada y libro devuelto", "success")
+                                    .then(() => location.reload());
+                            });
+
+                    });
+
+                });
+        }
+    </script>
+
+{% endblock %}
