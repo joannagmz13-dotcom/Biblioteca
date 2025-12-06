@@ -1,1 +1,1 @@
-web: gunicorn Biblioteca.wsgi
+web:  python manage.py collectstatic && gunicorn Biblioteca.wsgi
