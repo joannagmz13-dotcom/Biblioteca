@@ -26,7 +26,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 CSRF_TRUSTED_ORIGINS = [
-    "https://5b1d8a3ddc73.ngrok-free.app",
+    "web-production-19471.up.railway.app",
 
 ]
 
