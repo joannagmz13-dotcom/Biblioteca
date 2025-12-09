@@ -6,7 +6,7 @@ urlpatterns = [
 
     path('logout/', views.logout_view, name='logout'),  # ⬅ importante
     path('lista-alumno/', views.alumno_list, name='alumno_list'),
-    path('nuevo/', views.alumno_create, name='alumno_create'),
+    path('alumno/nuevo/', views.alumno_create, name='alumno_create'),
     path('editar/<int:id>/', views.alumno_update, name='alumno_update'),
     path('eliminar/<int:id>/', views.alumno_delete, name='alumno_delete'),
     # categorias
@@ -38,8 +38,7 @@ urlpatterns = [
 
     path("prestamos/<int:id>/multas/", views.prestamo_multas, name="prestamo_multas"),
 
-    path("prestamos/devolver-sin-multa/<int:id>/", views.prestamo_devolver_sin_multa,
-         name="prestamo_devolver_sin_multa"),
+    path("prestamos/devolver-sin-multa/<int:id>/", views.prestamo_devolver_sin_multa, name="prestamo_devolver_sin_multa"),
 
     path("prestamos/multas/<int:id_prestamo>/", views.ver_multas_prestamo),
 
